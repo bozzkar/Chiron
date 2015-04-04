@@ -43,6 +43,25 @@ exports.getUser = function(email,password) {
 };
 
 
+// return user object with corresponding email, password
+exports.getUserByName = function(name) {
+    var d = Q.defer();
+    User.findOne({ displayName: name }, function(err, res) {
+        if(err) {
+            console.log('getUser err')
+            d.reject(new Error(err));
+        } else if(!res) {
+            console.log('getUser !res')
+            d.reject(new Error("user name not found"));
+        } else {
+            console.log('getUser resolve')
+            d.resolve(res);
+        }
+    });
+    return d.promise;
+};
+
+
 // return user object with corresponding id
 exports.getUserByKey = function(key) {
     var d = Q.defer();
@@ -52,7 +71,7 @@ exports.getUserByKey = function(key) {
             d.reject(new Error(err));
         } else if(!res) {
             console.log('getUser !res')
-            d.reject(new Error("user email not found"));
+            d.reject(new Error("user key not found"));
         } else {
             console.log('getUser resolve')
             d.resolve(res);
