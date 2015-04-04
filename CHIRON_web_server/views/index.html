@@ -1,0 +1,39 @@
+<script>
+$(document).ready(function(){
+  var email,pass;
+  $("#login").click(function(){
+    email=$("#email").val();
+    pass=$("#password").val();
+    /*
+    * Perform some validation here.
+    */
+    $.post("http://localhost:8080/login",{email:email,pass:pass},function(data){    
+      if(data==='done')     
+      {
+        window.location.href="/console";
+      }
+    });
+  });
+
+  $("#create").click(function(){
+    email=$("#email").val();
+    pass=$("#password").val();
+    /*
+    * Perform some validation here.
+    */
+    $.post("http://localhost:8080/createUser",{email:email,pass:pass},function(data){    
+      if(data==='done')     
+      {
+        window.location.href="/console";
+      }
+    });
+  });
+
+});
+</script>
+
+
+<input type="text" size="40" placeholder="Type your email" id="email"><br />
+<input type="password" size="40" placeholder="Type your password" id="password"><br />
+<input type="button" value="Login" id="login">
+<input type="button" value="Create Account" id="create">
