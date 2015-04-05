@@ -103,14 +103,10 @@ app.get('/logout',function(req,res){
 });
 
 
-app.get('/chat',function(req, res){
-	res.render('chat',{title: "chat"});
+app.get('/chat/:id',function(req, res){
+	var id = req.params.id
+	res.render('chat',{title: id+" - Chat"});
 });
-
-app.get('/chat2',function(req, res){
-	res.render('chat',{title: "chat2"});
-});
-
 
 
 
@@ -165,14 +161,14 @@ io.on('connection', function (socket) {
 
   // when the client emits 'typing', we broadcast it to others
   socket.on('typing', function () {
-    socket.broadcast.emit('typing', {
+    socket.broadcast.to(socket.room).emit('typing', {
       username: socket.username
     });
   });
 
   // when the client emits 'stop typing', we broadcast it to others
   socket.on('stop typing', function () {
-    socket.broadcast.emit('stop typing', {
+    socket.broadcast.to(socket.room).emit('stop typing', {
       username: socket.username
     });
   });
@@ -185,21 +181,13 @@ io.on('connection', function (socket) {
       --numUsers;
 
       // echo globally that this client has left
-      socket.broadcast.emit('user left', {
+      socket.broadcast.to(socket.room).emit('user left', {
         username: socket.username,
         numUsers: numUsers
       });
     }
   });
 });
-
-
-
-
-
-
-
-
 
 
 server.listen(8080);
