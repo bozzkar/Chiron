@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script type="text/javascript">
+
+    /**
+     * The Project ID of your Google Cloud Storage Project.
+     */
+    var PROJECT = 'sustained-flow-862';
+
+    /**
+     * Enter a client ID for a web application from the Google Developers
+     * Console on the "APIs & auth", "Credentials" page. 
+     * In your Developers Console project add a JavaScript origin
+     * that corresponds to the domain from where you will be running the
+     * script. For more info see:
+     * https://developers.google.com/console/help/new/#generatingoauth2
+     */
+    var clientId = '190231815696-k3pjlcedef0uqhhjecqf4ghcmco2m9s6.apps.googleusercontent.com';
+
+   /**
+    * Enter the API key from the Google Developers Console, by following these
+    * steps:
+    * 1) Visit https://cloud.google.com/console and select your project
+    * 2) Click on "APIs & auth" in the left column and then click “Credentials”
+    * 3) Find section "Public API Access" and use the "API key." If sample is
+    * being run on localhost then delete all "Referers" and save. Setting
+    * should display "Any referer allowed." For more info see:
+    * https://developers.google.com/console/help/new/#generatingdevkeys
+    */
+    var apiKey = 'AIzaSyAeTUrnHBTYFElEzWjx7YwWR9BFJYzNbVc';
+
+    /**
+     * To enter one or more authentication scopes, refer to the documentation
+     * for the API.
+     */
+    var scopes = 'https://www.googleapis.com/auth/devstorage.full_control';
+
+    /**
+     * Constants for request parameters. Fill these values in with your custom
+     * information.
+     */
+    var API_VERSION = 'v1';
+
+    /**
+     * Enter a unique bucket name to create a new bucket. The guidelines for
+     * bucket naming can be found here:
+     * https://developers.google.com/storage/docs/bucketnaming
+     */
+    var BUCKET = 'code-sample-bucket-1430365505327' //+ Date.now();
+
+    /**
+     * The name of the object inserted via insertObject method.  
+     */
+    var object = "TestFile_Object";
+
+    /**
+     * Get this value from the Developers Console. Click on the 
+     * “Cloud Storage” service in the Left column and then select 
+     * “Project Dashboard”. Use one of the Google Cloud Storage group IDs 
+     * listed and combine with the prefix “group-” to get a string 
+     * like the example below. 
+     */
+    var GROUP = 
+    'group-00b4903a97e8064f574d5634c2f04b34879e4e471a03e15857db34bdf478d5d5';
+
+    /**
+     * Valid values are user-userId, user-email, group-groupId, group-email,
+     * allUsers, allAuthenticatedUsers
+     */
+    var ENTITY = 'allUsers';
+
+    /**
+     * Valid values are READER, OWNER
+     */
+    var ROLE = 'READER';
+
+    /**
+     * Valid values are READER, OWNER
+     */
+    var ROLE_OBJECT = 'READER';
+
+    /**
+     * Google Cloud Storage API request to retrieve the list of objects in
+     * your Google Cloud Storage project.
+     */
+
+     function listObjects() {
+      var request = gapi.client.storage.objects.list({
+        'bucket': BUCKET
+      });
+      executeRequest(request, 'listObjects');
+    }
+
+      
+    /**
+     * Google Cloud Storage API request to insert an object into
+     * your Google Cloud Storage bucket.
+     */
+    function insertObject(event) {
+      try{
+        var fileData = event.target.files[0];
+      } 
+      catch(e) {
+        //'Insert Object' selected from the API Commands select list
+        //Display insert object button and then exit function
+        filePicker.style.display = 'block';
+        return;
+      }
+      const boundary = '-------314159265358979323846';
+      const delimiter = "\r\n--" + boundary + "\r\n";
+      const close_delim = "\r\n--" + boundary + "--";
+
+      var reader = new FileReader();
+      reader.readAsBinaryString(fileData);
+      reader.onload = function(e) {
+        var contentType = fileData.type || 'application/octet-stream';
+        var metadata = {
+          'name': fileData.name,
+          'mimeType': contentType
+        };
+
+        var base64Data = btoa(reader.result);
+        var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(metadata) +
+          delimiter +
+          'Content-Type: ' + contentType + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64Data +
+          close_delim;
+
+        //Note: gapi.client.storage.objects.insert() can only insert
+        //small objects (under 64k) so to support larger file sizes
+        //we're using the generic HTTP request method gapi.client.request()
+        var request = gapi.client.request({
+          'path': '/upload/storage/' + API_VERSION + '/b/' + BUCKET + '/o',
+          'method': 'POST',
+          'params': {'uploadType': 'multipart'},
+          'headers': {
+            'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+          },
+          'body': multipartRequestBody});
+          //Remove the current API result entry in the main-content div
+          listChildren = document.getElementById('main-content').childNodes;
+          if (listChildren.length > 1) {
+            listChildren[1].parentNode.removeChild(listChildren[1]);
+          }
+        try{
+          //Execute the insert object request
+          executeRequest(request, 'insertObject');
+          //Store the name of the inserted object 
+          object = fileData.name;	  
+        }
+        catch(e) {
+          alert('An error has occurred: ' + e.message);
+        }
+      }
+    }
+
+    
+ 
+    /**
+     * Google Cloud Storage API request to delete a Google Cloud Storage object.
+     */
+    function deleteObject() {
+      var request = gapi.client.storage.objects.delete({
+          'bucket': BUCKET,
+          'object': object
+      });
+      executeRequest(request, 'deleteObject');
+    }
+
+    /**
+     * Removes the current API result entry in the main-content div, adds the
+     * results of the entry for your function.
+     * @param {string} apiRequestName The name of the example API request.
+     */
+    function updateApiResultEntry(apiRequestName) {
+      listChildren = document.getElementById('main-content')
+        .childNodes;
+      if (listChildren.length > 1) {
+        listChildren[1].parentNode.removeChild(listChildren[1]);
+      }
+      if (apiRequestName != 'null') {
+        window[apiRequestName].apply(this);
+      }
+    }
+
+    /**
+     * Determines which API request has been selected, and makes a call to add
+     * its result entry.
+     */
+    function runSelectedApiRequest() {
+      var curElement = document.getElementById('api-selection-options');
+      var apiRequestName = curElement.options[curElement.selectedIndex].value;
+      updateApiResultEntry(apiRequestName);
+    }
+
+    /**
+     * Binds event listeners to handle a newly selected API request.
+     */
+    function addSelectionSwitchingListeners() {
+      document.getElementById('api-selection-options')
+        .addEventListener('change',
+      runSelectedApiRequest, false);
+    }
+
+    /**
+     * Executes your Google Cloud Storage request object and, subsequently,
+     * inserts the response into the page.
+     * @param {string} request A Google Cloud Storage request object issued
+     *    from the Google Cloud Storage JavaScript client library.
+     * @param {string} apiRequestName The name of the example API request.
+     */
+    function executeRequest(request, apiRequestName) {
+      request.execute(function(resp) {
+        console.log(resp);
+        var apiRequestNode = document.createElement('div');
+        apiRequestNode.id = apiRequestName;
+
+        var apiRequestNodeHeader = document.createElement('h2');
+        apiRequestNodeHeader.innerHTML = apiRequestName;
+
+        apiRequestNode.appendChild(apiRequestNodeHeader);
+      
+
+         var apiResponseNode = document.createElement('div');
+        apiResponseNode.id = apiRequestName + 'Results';
+
+        var apiResponseEntry = document.createElement('pre');
+        apiResponseEntry.innerHTML = JSON.stringify(resp, null, ' ');
+
+        apiResponseNode.appendChild(apiResponseEntry);
+        apiRequestNode.appendChild(apiResponseNode);
+
+        var content = document.getElementById('main-content');
+        content.appendChild(apiRequestNode);
+      });
+    }
+
+    /**
+     * Set required API keys and check authentication status.
+     */
+    function handleClientLoad() {
+      gapi.client.setApiKey(apiKey);
+      window.setTimeout(checkAuth, 1);
+    }
+
+    /**
+     * Authorize Google Cloud Storage API.
+     */
+    function checkAuth() {
+      gapi.auth.authorize({
+        client_id: clientId,
+        scope: scopes,
+        immediate: true
+      }, handleAuthResult);
+    }
+
+    /**
+     * Handle authorization.
+     */
+    function handleAuthResult(authResult) {
+      var authorizeButton = document.getElementById('authorize-button');
+      if (authResult && !authResult.error) {
+        authorizeButton.style.visibility = 'hidden';
+        initializeApi();
+	filePicker.onchange = insertObject;
+      } else {
+        authorizeButton.style.visibility = '';
+        authorizeButton.onclick = handleAuthClick;
+      }
+    }
+
+    /**
+     * Handle authorization click event.
+     */
+    function handleAuthClick(event) {
+      gapi.auth.authorize({
+        client_id: clientId,
+        scope: scopes,
+        immediate: false
+      }, handleAuthResult);
+      return false;
+    }
+
+    /**
+     * Load the Google Cloud Storage API.
+     */
+    function initializeApi() {
+      gapi.client.load('storage', API_VERSION);
+    }
+
+    /**
+     * Driver for sample application.
+     */
+    $(window)
+      .bind('load', function() {
+        addSelectionSwitchingListeners();
+        handleClientLoad();
+    });
+    </script>
+  </head>
+  <body>
+    <!--Add a button for the user to click to initiate auth sequence -->
+    <button id="authorize-button" style="visibility: hidden">Authorize</button>
+    <header>
+      <h1>Upload file to cloud storage</h1>
+    </header>
+    <label id="api-label">Operations list</label>
+    <select id="api-selection-options">
+      <option value="null">
+        Choose operation
+      </option>
+     
+      <option value="insertObject">
+        Upload your file
+      </option>
+      <option value="listObjects">
+        List all files uploaded
+      </option>
+      <option value="deleteObject">
+        Delete file
+      </option>
+  
+    </select>
+    <br/>
+	<input type="file" id="filePicker" style="display: none" />
+    <div id="main-content">
+    </div>
+  </body>
+</html>
