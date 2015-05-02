@@ -91,11 +91,19 @@
      function listObjects() {
       var request = gapi.client.storage.objects.list({
         'bucket': BUCKET
+        
       });
       executeRequest(request, 'listObjects');
     }
 
-      
+    function listObjectsOfSingleUser(){
+      var UserId = document.getElementById('UserId').value+'/';
+      var request = gapi.client.storage.objects.list({
+        'bucket': BUCKET,
+        'prefix': UserId
+      });
+      executeRequest(request, 'listObjectsOfSingleUser');
+    }  
     /**
      * Google Cloud Storage API request to insert an object into
      * your Google Cloud Storage bucket.
@@ -155,7 +163,7 @@
           //Execute the insert object request
           executeRequest(request, 'insertObject');
           //Store the name of the inserted object 
-          object = fileData.name;	  
+          object = fileData.name;   
         }
         catch(e) {
           alert('An error has occurred: ' + e.message);
@@ -271,7 +279,7 @@
       if (authResult && !authResult.error) {
         authorizeButton.style.visibility = 'hidden';
         initializeApi();
-	filePicker.onchange = insertObject;
+  filePicker.onchange = insertObject;
       } else {
         authorizeButton.style.visibility = '';
         authorizeButton.onclick = handleAuthClick;
@@ -325,13 +333,17 @@
       <option value="listObjects">
         List all files uploaded
       </option>
+      <option value="listObjectsOfSingleUser">
+        List all files uploaded by one user
+      </option>
       <option value="deleteObject">
         Delete file
       </option>
   
     </select>
     <br/>
-	<input type="file" id="filePicker" style="display: none" />
+  <input type="file" id="filePicker" style="display: none" />
+  User id: <input type="text" id="UserId" />
     <div id="main-content">
     </div>
   </body>
