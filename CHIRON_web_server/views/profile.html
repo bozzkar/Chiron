@@ -42,7 +42,7 @@
 </ul>
 </div>
 <div class="span8">
-<pre><code class="javascript">No file selected</code></pre>
+<pre><code class="javascript" id="filecontent">No file selected</code></pre>
 </div>
 </div>
 
@@ -215,6 +215,10 @@
         'bucket': BUCKET
       });
       executeRequest(request, 'listObjects');
+    }
+
+    function getFile(filename) {
+        $('#filecontent').html(filename)
     }
 
     /**
