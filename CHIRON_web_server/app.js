@@ -53,11 +53,10 @@ app.get('/console', function(req,res) {
 
 
 app.get('/profile/:dpname', function(req,res) {
-
 	name = req.params.dpname;
 	sess = req.session;
 	db.getUserByName(name).then(function(val){
-		res.render('profile',{title: val.displayName+" - CHIRON", key: val.streamKey});
+		res.render('profile',{title: val.displayName+" - CHIRON", key: val.streamKey, user_name: sess.user});
 	});
 });
 

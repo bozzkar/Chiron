@@ -1,7 +1,7 @@
 
 <div class="row">
   <div class="span7">
-  	<video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264" 
+  	<video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="400" 
       data-setup='{}'>
       <source src="rtmp://130.211.112.165/live/{{key}}" type='rtmp/mp4'>
     </video>
@@ -14,22 +14,7 @@
                 </div>
                 <div class="panel-body">
                     <ul class="chat" id="chatbox">
-                        <li>
-                            <div class="chat-body">
-                                    Jack Sparrow: 
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                
-                            </div>
-                        </li>
-                        <li>
-                            <div class="chat-body">
-                                    Jack Sparrow:
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                               
-                            </div>
-                        </li>
+                        
                     </ul>
                 </div>
                 <div class="panel-footer">
@@ -45,8 +30,26 @@
         </div>
 
 
+
+  </div>
+</div>
+
+
+<div class="row">
+<div class="span4">
+<ul class="nav nav-list" id="filelist">
+
+</ul>
+</div>
+<div class="span8">
+<pre><code class="javascript">No file selected</code></pre>
+</div>
+</div>
+
+
+
 <script>
-  var username = "Batman"
+  var username = "{{user_name}}";
   var pathname = window.location.pathname
   pathname = pathname.substring(pathname.lastIndexOf('/'))
   // Prevents input from having injected markup
@@ -121,14 +124,6 @@
   });
 
 </script>
-
-
-  </div>
-</div>
-
-
-
-
 
     <script src="https://apis.google.com/js/client.js"></script>
     <script type="text/javascript">
@@ -233,8 +228,11 @@
     	request.execute(function(resp) {
 	    	var i;
 	   		var lst = [];
-	    	for(i=0;i<resp.items.length;i++)
-	    		lst[i] = resp.items[i].name;
+	    	for(i=0;i<resp.items.length;i++){
+                $('#filelist').append("<li><a onclick='getFile(\""+resp.items[i].name+"\")'>"+resp.items[i].name+"</a></li>");
+
+
+            }
 	    	console.log(lst);
 		  
 		});
