@@ -15,7 +15,7 @@ app.set('views', __dirname + '/views');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-app.use(session({secret: '<a long complicated sequence of characters and symbols>',saveUninitialized: true,resave: true}));
+app.use(session({secret: '<a long complicated sequence of characters and $ymb0ls>',saveUninitialized: true,resave: true}));
 app.engine('html', hbs.__express);
 
 var sess;
@@ -70,9 +70,10 @@ app.post('/login',function(req,res){
 	console.log('in login')
 	sess=req.session;
 	email = req.body.email
-	password = req.body.password
+	password = req.body.pass
 	db.getUser(email,password).then(function(val){
-		sess.token=val.streamKey;
+		sess.token=val[0].streamKey;
+		sess.user = val[0].displayName;
 		res.end('done');
 	});
 });
@@ -82,9 +83,11 @@ app.post('/createUser',function(req,res){
 	console.log('in create user')
 	sess=req.session;
 	email = req.body.email
-	password = req.body.password
+	password = req.body.pass
 	db.createUser(email,password).then(function(val){
+		console.log(val)
 		sess.token=val.streamKey;
+		sess.user = val.displayName;
 		res.end('done');
 	});
 });
@@ -105,11 +108,17 @@ app.get('/logout',function(req,res){
 
 app.get('/chat/:id',function(req, res){
 	var id = req.params.id
-	res.render('chat',{title: id+" - Chat"});
+	res.render('chat',{title: id+" - Chat", layout: 'layout2'});
 });
 
+app.get('/baskar', function(req,res) {
+	res.render('baskar')
+});
 
-
+app.get('/ttt/:id', function(req, res) {
+	var id = req.params.id
+	res.render(id)
+});
 
 
 

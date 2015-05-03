@@ -1,9 +1,306 @@
 
+<div class="row">
+  <div class="span7">
+  	<video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264" 
+      data-setup='{}'>
+      <source src="rtmp://130.211.112.165/live/{{key}}" type='rtmp/mp4'>
+    </video>
+  </div>
+  <div class="span5">
 
-<video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="854" height="510" 
-  data-setup='{}'>
-  <source src="rtmp://130.211.112.165/live/{{key}}" type='rtmp/mp4'>
-</video>
+        <div class="col-md-5">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                </div>
+                <div class="panel-body">
+                    <ul class="chat" id="chatbox">
+                        <li>
+                            <div class="chat-body">
+                                    Jack Sparrow: 
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                
+                            </div>
+                        </li>
+                        <li>
+                            <div class="chat-body">
+                                    Jack Sparrow:
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                               
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="msg-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+                        <span class="input-group-btn">
+                            <button class="btn btn-warning btn-sm" id="btn-chat" onclick="sendMessage()">
+                                Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
+<script>
+  var username = "Batman"
+  var pathname = window.location.pathname
+  pathname = pathname.substring(pathname.lastIndexOf('/'))
+  // Prevents input from having injected markup
+  function cleanInput (input) {
+    return $('<div/>').text(input).text();
+  }
+
+  function sendMessage () {
+    console.log("in sendMessage")
+    var message = $('#msg-input').val();
+    message = cleanInput(message);
+    if (message && connected) {
+      $('#msg-input').val('');
+      addChatMessage({
+        username: username,
+        message: message
+      });
+      // tell server to execute 'new message' and send along one parameter
+      socket.emit('new message', message);
+    }
+  }
+
+  function addChatMessage(data) {
+    var m = data.username + ": " + data.message;
+    var outstr =  "<li><div class=\"chat-body\">"+m+"</div></li>"
+    $('#chatbox').append(outstr);
+  }
+
+
+
+  var socket = io();
+  socket.emit('add user', {username: username, room: pathname});
+
+  // Whenever the server emits 'login', log the login message
+  socket.on('login', function (data) {
+    connected = true;
+    // Display the welcome message
+    var message = "Welcome to Socket.IO Chat – ";
+    //log(message, {
+    //  prepend: true
+    //});
+    //addParticipantsMessage(data);
+  });
+
+
+  // Whenever the server emits 'new message', update the chat body
+  socket.on('new message', function (data) {
+    addChatMessage(data);
+  });
+
+  // Whenever the server emits 'user joined', log it in the chat body
+  socket.on('user joined', function (data) {
+    //log(data.username + ' joined');
+    //addParticipantsMessage(data);
+  });
+
+  // Whenever the server emits 'user left', log it in the chat body
+  socket.on('user left', function (data) {
+    //log(data.username + ' left');
+    //addParticipantsMessage(data);
+    //removeChatTyping(data);
+  });
+
+  // Whenever the server emits 'typing', show the typing message
+  socket.on('typing', function (data) {
+    //addChatTyping(data);
+  });
+
+  // Whenever the server emits 'stop typing', kill the typing message
+  socket.on('stop typing', function (data) {
+    //removeChatTyping(data);
+  });
+
+</script>
+
+
+  </div>
+</div>
+
+
+
+
+
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script type="text/javascript">
+
+    /**
+     * The Project ID of your Google Cloud Storage Project.
+     */
+    var PROJECT = 'sustained-flow-862';
+
+    /**
+     * Enter a client ID for a web application from the Google Developers
+     * Console on the "APIs & auth", "Credentials" page. 
+     * In your Developers Console project add a JavaScript origin
+     * that corresponds to the domain from where you will be running the
+     * script. For more info see:
+     * https://developers.google.com/console/help/new/#generatingoauth2
+     */
+    var clientId = '190231815696-k3pjlcedef0uqhhjecqf4ghcmco2m9s6.apps.googleusercontent.com';
+
+   /**
+    * Enter the API key from the Google Developers Console, by following these
+    * steps:
+    * 1) Visit https://cloud.google.com/console and select your project
+    * 2) Click on "APIs & auth" in the left column and then click “Credentials”
+    * 3) Find section "Public API Access" and use the "API key." If sample is
+    * being run on localhost then delete all "Referers" and save. Setting
+    * should display "Any referer allowed." For more info see:
+    * https://developers.google.com/console/help/new/#generatingdevkeys
+    */
+    var apiKey = 'AIzaSyAeTUrnHBTYFElEzWjx7YwWR9BFJYzNbVc';
+
+    /**
+     * To enter one or more authentication scopes, refer to the documentation
+     * for the API.
+     */
+    var scopes = 'https://www.googleapis.com/auth/devstorage.full_control';
+
+    /**
+     * Constants for request parameters. Fill these values in with your custom
+     * information.
+     */
+    var API_VERSION = 'v1';
+
+    /**
+     * Enter a unique bucket name to create a new bucket. The guidelines for
+     * bucket naming can be found here:
+     * https://developers.google.com/storage/docs/bucketnaming
+     */
+    var BUCKET = 'code-sample-bucket-1430365505327' //+ Date.now();
+
+    /**
+     * The name of the object inserted via insertObject method.  
+     */
+    var object = "TestFile_Object";
+
+    /**
+     * Get this value from the Developers Console. Click on the 
+     * “Cloud Storage” service in the Left column and then select 
+     * “Project Dashboard”. Use one of the Google Cloud Storage group IDs 
+     * listed and combine with the prefix “group-” to get a string 
+     * like the example below. 
+     */
+    var GROUP = 
+    'group-00b4903a97e8064f574d5634c2f04b34879e4e471a03e15857db34bdf478d5d5';
+
+    /**
+     * Valid values are user-userId, user-email, group-groupId, group-email,
+     * allUsers, allAuthenticatedUsers
+     */
+    var ENTITY = 'allUsers';
+
+    /**
+     * Valid values are READER, OWNER
+     */
+    var ROLE = 'READER';
+
+    /**
+     * Valid values are READER, OWNER
+     */
+    var ROLE_OBJECT = 'READER';
+
+    /**
+     * Google Cloud Storage API request to retrieve the list of objects in
+     * your Google Cloud Storage project.
+     */
+
+     function listObjects() {
+      var request = gapi.client.storage.objects.list({
+        'bucket': BUCKET
+      });
+      executeRequest(request, 'listObjects');
+    }
+
+    /**
+     * Executes your Google Cloud Storage request object and, subsequently,
+     * inserts the response into the page.
+     * @param {string} request A Google Cloud Storage request object issued
+     *    from the Google Cloud Storage JavaScript client library.
+     * @param {string} apiRequestName The name of the example API request.
+     */
+    function executeRequest(request, apiRequestName) {
+    	request.execute(function(resp) {
+	    	var i;
+	   		var lst = [];
+	    	for(i=0;i<resp.items.length;i++)
+	    		lst[i] = resp.items[i].name;
+	    	console.log(lst);
+		  
+		});
+    }
+
+    /**
+     * Set required API keys and check authentication status.
+     */
+    function handleClientLoad() {
+      gapi.client.setApiKey(apiKey);
+      window.setTimeout(checkAuth, 1);
+    }
+
+    /**
+     * Authorize Google Cloud Storage API.
+     */
+    function checkAuth() {
+      gapi.auth.authorize({
+        client_id: clientId,
+        scope: scopes,
+        immediate: true
+      }, handleAuthResult);
+    }
+
+    /**
+     * Handle authorization.
+     */
+    function handleAuthResult(authResult) {
+      var authorizeButton = document.getElementById('authorize-button');
+      if (authResult && !authResult.error) {
+        authorizeButton.style.visibility = 'hidden';
+        initializeApi();
+      } else {
+        authorizeButton.style.visibility = '';
+        authorizeButton.onclick = handleAuthClick;
+      }
+    }
+
+    /**
+     * Handle authorization click event.
+     */
+    function handleAuthClick(event) {
+      gapi.auth.authorize({
+        client_id: clientId,
+        scope: scopes,
+        immediate: false
+      }, handleAuthResult);
+      return false;
+    }
+
+    /**
+     * Load the Google Cloud Storage API.
+     */
+    function initializeApi() {
+      gapi.client.load('storage', API_VERSION,listObjects);
+    }
+
+    /**
+     * Driver for sample application.
+     */
+    $(window)
+      .bind('load', function() {
+        handleClientLoad();
+    });
+    </script>
+
+
+    <button id="authorize-button" style="visibility: hidden">Authorize</button>
 

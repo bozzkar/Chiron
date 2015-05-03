@@ -27,15 +27,19 @@ var User = mongoose.model("User", userSchema);
 // return user object with corresponding email, password
 exports.getUser = function(email,password) {
     var d = Q.defer();
-    User.findOne({ emailAddr: email, password: password }, function(err, res) {
+    User.find({ emailAddr: email, password: password }, function(err, res) {
         if(err) {
             console.log('getUser err')
             d.reject(new Error(err));
         } else if(!res) {
             console.log('getUser !res')
             d.reject(new Error("user email not found"));
+        } else if (res.length == 0) {
+            console.log('res length == 0')
+            d.reject(new Error("res length == 0"))
         } else {
             console.log('getUser resolve')
+            console.log(res)
             d.resolve(res);
         }
     });
@@ -100,15 +104,50 @@ exports.createUser = function(email, password) {
 };
 
 
+var checkUser = function(email) {
+    var d = Q.defer();
+    User.find({ emailAddr: email }, function(err, res) {
+        if(err) {
+            console.log('getUser err')
+            d.reject(new Error(err));
+        } else if(!res) {
+            console.log('getUser !res')
+            d.reject(new Error("user name not found"));
+        } else {
+            console.log('getUser resolve')
+            d.resolve(res);
+        }
+    });
+    return d.promise;
+}
+
 // helper function to create User object
 // also checks for duplication
 var createUserObject = function(email, password) {
     var d = Q.defer();
     var user;
-    exports.getUser(email).then(function(val){
+    checkUser(email).then(function(val){
         // User exist, do nothing
-        console.log("user exists, no new entry created");
-        d.reject(new Error("user existed"));
+        if (val.length>0) {
+            console.log("user exists, no new entry created");
+            console.log(val.toString())
+            d.reject(new Error("user existed"));
+        }
+        else {
+            // sha-256 for stream key generator
+            var h = crypto.createHash('sha256');
+            h.update(email)
+
+            console.log("creating new user");
+            user = new User({
+                emailAddr: email,
+                password: password,
+                displayName: email.substring(0,email.indexOf('@')),
+                streamKey: h.digest('hex')
+            });
+            d.resolve(user);
+        }
+
     },function(err){
         // sha-256 for stream key generator
         var h = crypto.createHash('sha256');
