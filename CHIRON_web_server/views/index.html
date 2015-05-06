@@ -7,7 +7,7 @@ $(document).ready(function(){
     /*
     * Perform some validation here.
     */
-    $.post("http://localhost:8080/login",{email:email,pass:pass},function(data){    
+    $.post("/login",{email:email,pass:pass},function(data){    
       if(data==='done')     
       {
         console.log(document.cookie);
@@ -22,7 +22,7 @@ $(document).ready(function(){
     /*
     * Perform some validation here.
     */
-    $.post("http://localhost:8080/createUser",{email:email,pass:pass},function(data){    
+    $.post("/createUser",{email:email,pass:pass},function(data){    
       if(data==='done')     
       {
         console.log(document.cookie);
