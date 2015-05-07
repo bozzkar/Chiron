@@ -9,6 +9,8 @@ var path = require('path');
 var session	= require('express-session');
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
+var redis = require('socket.io-redis');
+io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
