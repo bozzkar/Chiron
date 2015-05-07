@@ -10,7 +10,7 @@ var session	= require('express-session');
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
 var redis = require('socket.io-redis');
-io.adapter(redis({ host: 'localhost', port: 6379 }));
+io.adapter(redis({ host: '10.240.15.72', port: 6379 }));
 
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
@@ -200,4 +200,4 @@ io.on('connection', function (socket) {
 });
 
 
-server.listen(80);
+server.listen(8080);
