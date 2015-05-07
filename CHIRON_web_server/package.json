@@ -1,0 +1,14 @@
+{
+	
+ "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "express-session": "*",
+    "hbs": "*",
+    "mongoose": "*",
+    "q": "*",
+    "request": "*",
+    "socket.io": "*",
+    "socket.io-redis": "*"
+  }
+}
