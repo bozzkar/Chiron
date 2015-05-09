@@ -2,7 +2,7 @@ import threading
 from socketIO_client import SocketIO, LoggingNamespace
 
 def worker():
-    with SocketIO('http://104.154.57.24', 8080, LoggingNamespace) as socketIO:
+    with SocketIO('http://130.211.190.147', 8080, LoggingNamespace) as socketIO:
         socketIO.emit('add user', {'username': "python", 'room': "/thasphon"})
         for i in range(500):
             socketIO.emit('new message', 'hello world')
